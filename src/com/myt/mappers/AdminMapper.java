@@ -16,6 +16,7 @@ import com.myt.domains.Dealer;
 import com.myt.domains.RegionalManager;
 import com.myt.domains.TSI;
 import com.myt.domains.User;
+import com.myt.domains.Warehouse;
 
 /**
  * @author bhanu
@@ -76,7 +77,8 @@ public interface AdminMapper {
 	@Select("SELECT id FROM dealer ORDER BY id DESC LIMIT 1")
 	public Integer getLastAddedDealerId();
 
-	@Select("SELECT * FROM dealer WHERE id = #{dealer_id}")
+	@Select("SELECT d.*, c.name AS \"company.name\" FROM dealer d JOIN company_admin ca ON d.company_admin_id = ca.id "
+			+ " JOIN company c ON c.id = ca.company_id WHERE d.id = #{dealer_id}")
 	public Dealer getDealerById(Integer dealer_id);
 
 	@Select("SELECT company_id FROM company_admin WHERE id = #{company_admin_id}")
@@ -126,12 +128,26 @@ public interface AdminMapper {
 	@Update("UPDATE dealer SET profile_pic = #{file_url} WHERE id = #{type_id}")
 	public Integer updateDEALERProfilePic(@Param("type_id") Integer type_id,@Param("file_url") String file_url);
 
-	@Select("SELECT rm.* , c.name AS \" company.name \" FROM regional_manager rm JOIN company_admin ca ON "
-			+ " rm.company_admin_id = ca.id JOIN company c ON ca.company_id = c.id WHERE rm.id = #{rm_id}")
+	@Select("SELECT rm.* , c.name AS \"company.name\" FROM regional_manager rm JOIN company_admin ca ON "
+			+ " rm.boss_id = ca.id JOIN company c ON ca.company_id = c.id WHERE rm.id = #{rm_id}")
 	public RegionalManager getRMById(Integer rm_id);
 	
 	@Select("SELECT am.*, c.name AS \"company.name\" FROM area_manager am JOIN company_admin ca ON am.company_admin_id = ca.id "
 			+ " JOIN company c ON ca.company_id = c.id WHERE am.id = #{am_id}")
 	public AreaManager getAMById(Integer am_id);
+
+	@Select("SELECT tsi.* , c.name AS \"company.name\" FROM tsi JOIN company_admin ca ON tsi.company_admin_id = ca.id "
+			+ " JOIN company c ON c.id = ca.company_id WHERE tsi.id = #{tsi_id}") 
+	public TSI getTSIById(Integer tsi_id);
+
+	@Insert("INSERT INTO warehouse_bill(company_admin_id, dealer_id, amount) "
+			+ "VALUES(#{company_admin_id} , #{dealer_id} , #{amount}) ")
+	public Integer addWarehouseBills(Warehouse warehouseBills);
+
+	@Select("SELECT id FROM warehouse_bill WHERE company_admin_id = #{company_admin_id} ORDER BY id DESC LIMIT 1")
+	public Integer getLastAddedBillId(Integer company_admin_id);
+
+	@Select("SELECT id, name FROM dealer WHERE company_admin_id = #{company_admin_id}")
+	public List<Dealer> getDealerListByCA(Integer company_admin_id);
 
 }

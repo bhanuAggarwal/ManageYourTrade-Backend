@@ -11,6 +11,7 @@ import com.myt.domains.Dealer;
 import com.myt.domains.RegionalManager;
 import com.myt.domains.TSI;
 import com.myt.domains.User;
+import com.myt.domains.Warehouse;
 
 /**
  * @author bhanu
@@ -53,4 +54,10 @@ public interface AdminService {
 	public RegionalManager getRMById(Integer rm_id);
 
 	public AreaManager getAMById(Integer am_id);
+
+	public TSI getTSIById(Integer tsi_id);
+
+	public Integer addWarehouseBill(Warehouse warehouseBills);
+
+	public List<Dealer> getDealerListByCA(Integer company_admin_id);
 }

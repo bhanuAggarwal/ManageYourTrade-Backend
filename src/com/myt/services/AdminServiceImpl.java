@@ -16,6 +16,7 @@ import com.myt.domains.Dealer;
 import com.myt.domains.RegionalManager;
 import com.myt.domains.TSI;
 import com.myt.domains.User;
+import com.myt.domains.Warehouse;
 import com.myt.mappers.AdminMapper;
 
 /**
@@ -426,6 +427,59 @@ public class AdminServiceImpl implements AdminService{
 		}
 		return areaManager;
 	}
-	
+
+	@Override
+	public TSI getTSIById(Integer tsi_id) {
+		TSI tsi = new TSI();
+		if(tsi_id != null){
+			try{
+				tsi = adminMapper.getTSIById(tsi_id);
+			}catch(Exception e){
+				LOG.info("Error while fetching TSI Details " + e);
+			}
+		}
+		else{
+			LOG.info("TSI id id null");
+		}
+		return tsi;
+	}
+
+	@Override
+	public Integer addWarehouseBill(Warehouse warehouseBills) {
+		Integer flag = 0,id= 0;
+		if(warehouseBills != null){
+			try{
+				flag = adminMapper.addWarehouseBills(warehouseBills);
+				if(flag > 0){
+					id = adminMapper.getLastAddedBillId(warehouseBills.getCompany_admin_id());
+				}
+				else{
+					LOG.info("Bill Not Updated");
+				}
+			}catch(Exception e){
+				LOG.info("Error While Adding Warehouse Bills " + e);
+			}
+		}
+		else{
+			LOG.info("Some Param Missing");
+		}
+		return id;
+	}
+
+	@Override
+	public List<Dealer> getDealerListByCA(Integer company_admin_id) {
+		List<Dealer> dealerList = new ArrayList<Dealer>();
+		if(company_admin_id != null){
+			try{
+				dealerList = adminMapper.getDealerListByCA(company_admin_id);
+			}catch(Exception e){
+				LOG.info("Error While Fetching Dealer List " + e);
+			}
+		}
+		else{
+			LOG.info("Param Missing");
+		}
+		return dealerList;
+	}
 	
 }
