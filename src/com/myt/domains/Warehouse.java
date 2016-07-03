@@ -13,6 +13,8 @@ public class Warehouse {
 	Integer id;
 	Integer company_admin_id;
 	Integer dealer_id;
+	Integer company_id;
+	String dealer_name;
 	String invoice;
 	String collection;
 	String cn;
@@ -21,7 +23,8 @@ public class Warehouse {
 	String account;
 	String sale_report;
 	Double amount;
-	Timestamp update_time;
+	String dirPath;
+	Timestamp creationTime;	
 	
 	
 	public Warehouse() {
@@ -29,8 +32,8 @@ public class Warehouse {
 	}
 	public Warehouse(Integer id, Integer company_admin_id, Integer dealer_id,
 			String invoice, String collection, String cn, String dn,
-			String payment, String account, String sale_report, Double amount,
-			Timestamp update_time) {
+			String payment, String account, String sale_report, Double amount,String dirPath,
+			Timestamp creationTime, String dealer_name,Integer company_id) {
 		super();
 		this.id = id;
 		this.company_admin_id = company_admin_id;
@@ -43,22 +46,37 @@ public class Warehouse {
 		this.account = account;
 		this.sale_report = sale_report;
 		this.amount = amount;
-		this.update_time = update_time;
+		this.creationTime = creationTime;
+		this.dirPath = dirPath;
+		this.dealer_name = dealer_name;
+		this.company_id = company_id;
 	}
+	
+	
+	
 	@Override
 	public String toString() {
 		return "Warehouse [id=" + id + ", company_admin_id=" + company_admin_id
-				+ ", dealer_id=" + dealer_id + ", invoice=" + invoice
+				+ ", dealer_id=" + dealer_id + ", company_id=" + company_id
+				+ ", dealer_name=" + dealer_name + ", invoice=" + invoice
 				+ ", collection=" + collection + ", cn=" + cn + ", dn=" + dn
 				+ ", payment=" + payment + ", account=" + account
 				+ ", sale_report=" + sale_report + ", amount=" + amount
-				+ ", update_time=" + update_time + "]";
+				+ ", dirPath=" + dirPath + ", creationTime=" + creationTime
+				+ "]";
 	}
 	public Integer getId() {
 		return id;
 	}
 	public void setId(Integer id) {
 		this.id = id;
+	}
+	
+	public Integer getCompany_id() {
+		return company_id;
+	}
+	public void setCompany_id(Integer company_id) {
+		this.company_id = company_id;
 	}
 	public Integer getCompany_admin_id() {
 		return company_admin_id;
@@ -120,12 +138,26 @@ public class Warehouse {
 	public void setAmount(Double amount) {
 		this.amount = amount;
 	}
-	public Timestamp getUpdate_time() {
-		return update_time;
+	public Timestamp getCreativeTime() {
+		return creationTime;
 	}
-	public void setUpdate_time(Timestamp update_time) {
-		this.update_time = update_time;
+	public void setCreationTime(Timestamp creativeTime) {
+		this.creationTime = creativeTime;
 	}
-	
+	public String getDirPath() {
+		return dirPath;
+	}
+	public void setDirPath(String dirPath) {
+		this.dirPath = dirPath;
+	}
+	public String getDealer_name() {
+		return dealer_name;
+	}
+	public void setDealer_name(String dealer_name) {
+		this.dealer_name = dealer_name;
+	}
+	public Timestamp getCreationTime() {
+		return creationTime;
+	}
 	
 }

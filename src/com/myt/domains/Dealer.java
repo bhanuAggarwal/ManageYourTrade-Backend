@@ -31,6 +31,7 @@ public class Dealer {
 	Integer rm_id;
 	Integer company_admin_id;
 	Company company;
+	Double dealerAmount;
 
 	public Dealer() {
 		super();
@@ -42,7 +43,7 @@ public class Dealer {
 			Integer boss_id, Double latitude, Double longitude,
 			String bank_name, String bank_account, String bank_address,
 			String bank_ifsc, String reg_no, String profile_pic, Integer am_id,
-			Integer rm_id, Integer company_admin_id, Company company) {
+			Integer rm_id, Integer company_admin_id, Company company,Double dealerAmount) {
 		super();
 		this.id = id;
 		this.name = name;
@@ -65,6 +66,17 @@ public class Dealer {
 		this.rm_id = rm_id;
 		this.company_admin_id = company_admin_id;
 		this.company = company;
+		this.dealerAmount = dealerAmount;
+	}
+
+	
+
+	public Double getDealerAmount() {
+		return dealerAmount;
+	}
+
+	public void setDealerAmount(Double dealerAmount) {
+		this.dealerAmount = dealerAmount;
 	}
 
 	@Override
@@ -78,7 +90,8 @@ public class Dealer {
 				+ ", bank_ifsc=" + bank_ifsc + ", reg_no=" + reg_no
 				+ ", profile_pic=" + profile_pic + ", am_id=" + am_id
 				+ ", rm_id=" + rm_id + ", company_admin_id=" + company_admin_id
-				+ ", company=" + company + "]";
+				+ ", company=" + company + ", dealerAmount=" + dealerAmount
+				+ "]";
 	}
 
 	public Integer getId() {

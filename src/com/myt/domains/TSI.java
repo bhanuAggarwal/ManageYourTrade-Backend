@@ -21,6 +21,7 @@ public class TSI {
 	Integer rm_id;
 	Integer company_admin_id;
 	Company company;
+	Double dealerAmount;
 	
 	public TSI() {
 		super();
@@ -30,7 +31,7 @@ public class TSI {
 	public TSI(int id, String name, String designation, String area,
 			Integer boss_id, String phone_no, String email, String password,
 			String profile_pic, Integer rm_id, Integer company_admin_id,
-			Company company) {
+			Company company,Double dealerAmount) {
 		super();
 		this.id = id;
 		this.name = name;
@@ -44,6 +45,7 @@ public class TSI {
 		this.rm_id = rm_id;
 		this.company_admin_id = company_admin_id;
 		this.company = company;
+		this.dealerAmount = dealerAmount;
 	}
 
 	@Override
@@ -53,7 +55,8 @@ public class TSI {
 				+ ", phone_no=" + phone_no + ", email=" + email + ", password="
 				+ password + ", profile_pic=" + profile_pic + ", rm_id="
 				+ rm_id + ", company_admin_id=" + company_admin_id
-				+ ", company=" + company + "]";
+				+ ", company=" + company + ", dealerAmount=" + dealerAmount
+				+ "]";
 	}
 
 	public int getId() {
@@ -150,6 +153,14 @@ public class TSI {
 
 	public void setCompany(Company company) {
 		this.company = company;
+	}
+
+	public Double getDealerAmount() {
+		return dealerAmount;
+	}
+
+	public void setDealerAmount(Double dealerAmount) {
+		this.dealerAmount = dealerAmount;
 	}
 	
 }

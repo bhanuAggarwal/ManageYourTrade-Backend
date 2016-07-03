@@ -11,8 +11,9 @@ public class DealerOrder {
 	Integer id;
 	String order_list;
 	Integer dealer_id;
+	String dealer_name;
 	Integer tsi_id;
-	Integer warehouse_id;
+	Integer company_id;
 	String status;
 	Timestamp date_of_order;
 	
@@ -21,15 +22,16 @@ public class DealerOrder {
 	}
 
 	public DealerOrder(Integer id, String order_list, Integer dealer_id,
-			Integer tsi_id, Integer warehouse_id, String status, Timestamp date_of_order) {
+			Integer tsi_id, Integer company_id, String status, Timestamp date_of_order,String dealer_name) {
 		super();
 		this.id = id;
 		this.order_list = order_list;
 		this.dealer_id = dealer_id;
 		this.tsi_id = tsi_id;
-		this.warehouse_id = warehouse_id;
+		this.company_id = company_id;
 		this.status = status;
 		this.date_of_order = date_of_order;
+		this.dealer_name = dealer_name;
 	}
 
 
@@ -37,7 +39,7 @@ public class DealerOrder {
 	public String toString() {
 		return "DealerOrder [id=" + id + ", order_list=" + order_list
 				+ ", dealer_id=" + dealer_id + ", tsi_id=" + tsi_id
-				+ ", warehouse_id=" + warehouse_id + ", status=" + status
+				+ ", company_id=" + company_id + ", status=" + status
 				+ ", date_of_order=" + date_of_order + "]";
 	}
 
@@ -73,12 +75,21 @@ public class DealerOrder {
 		this.tsi_id = tsi_id;
 	}
 
-	public Integer getWarehouse_id() {
-		return warehouse_id;
+	public Integer getCompany_id() {
+		return company_id;
+	}
+	
+
+	public String getDealer_name() {
+		return dealer_name;
 	}
 
-	public void setWarehouse_id(Integer warehouse_id) {
-		this.warehouse_id = warehouse_id;
+	public void setDealer_name(String dealer_name) {
+		this.dealer_name = dealer_name;
+	}
+
+	public void setCompany_id(Integer company_id) {
+		this.company_id = company_id;
 	}
 
 	public String getStatus() {

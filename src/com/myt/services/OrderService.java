@@ -10,6 +10,8 @@ public interface OrderService {
 
 	Integer updateOrderByTSI(DealerOrder dealerOrder);
 
-	List<DealerOrder> getOrderListByType(Integer dealerId, String type);
+	List<DealerOrder> getOrderListByType(Integer dealerId, String type,Integer company_id);
+
+	List<DealerOrder> getOrderListByWarehouse(Integer company_id);
 
 }

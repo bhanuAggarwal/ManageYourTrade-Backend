@@ -19,11 +19,12 @@ public class RegionalManager {
 	String password;
 	String profile_pic;
 	Company company;
+	Double dealerAmount;
 	
 
 	public RegionalManager(int id, String name, String designation,
 			String area, Integer boss_id, String phone_no, String email,
-			String password, String profile_pic, Company company) {
+			String password, String profile_pic, Company company,Double dealerAmount) {
 		super();
 		this.id = id;
 		this.name = name;
@@ -35,8 +36,8 @@ public class RegionalManager {
 		this.password = password;
 		this.profile_pic = profile_pic;
 		this.company = company;
+		this.dealerAmount = dealerAmount;
 	}
-	
 	
 	@Override
 	public String toString() {
@@ -44,9 +45,9 @@ public class RegionalManager {
 				+ ", designation=" + designation + ", area=" + area
 				+ ", boss_id=" + boss_id + ", phone_no=" + phone_no
 				+ ", email=" + email + ", password=" + password
-				+ ", profile_pic=" + profile_pic + ", company=" + company + "]";
+				+ ", profile_pic=" + profile_pic + ", company=" + company
+				+ ", dealerAmount=" + dealerAmount + "]";
 	}
-
 
 	public RegionalManager() {
 		super();
@@ -123,6 +124,14 @@ public class RegionalManager {
 
 	public void setCompany(Company company) {
 		this.company = company;
+	}
+
+	public Double getDealerAmount() {
+		return dealerAmount;
+	}
+
+	public void setDealerAmount(Double dealerAmount) {
+		this.dealerAmount = dealerAmount;
 	}
 	
 }

@@ -35,11 +35,11 @@ public interface SuperAdminMapper {
             + " VALUES(#{name} , #{email} , #{phone_no} ,#{type}, #{password} , #{reference_id})")
 	public Integer createUser(User user);
 	
-	@Select("SELECT * from users where email = #{email} LIMIT 1")
+	@Select("SELECT * from users where email = #{email} ORDER BY id DESC LIMIT 1")
 	public User getUserByEmail(String email);
 
 	
-	@Select("SELECT ca.*, c.name AS \"company.name\" FROM company_admin ca JOIN company c ON ca.company_id = c.id")
+	@Select("SELECT ca.*, c.name AS \"company.name\" FROM company_admin ca JOIN company c ON ca.company_id = c.id ORDER BY id DESC")
 	public List<CompanyAdmin> getCompanyAdminList();
 
 	@Select("SELECT id FROM company ORDER BY id DESC LIMIT 1")

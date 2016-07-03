@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.myt.domains.AreaManager;
+import com.myt.domains.Company;
 import com.myt.domains.CompanyAdmin;
 import com.myt.domains.Dealer;
 import com.myt.domains.RegionalManager;
@@ -392,6 +393,9 @@ public class AdminServiceImpl implements AdminService{
 				case "DEALER":
 					flag = adminMapper.updateDEALERProfilePic(type_id, file_url);
 					break;
+				case "LOGO":
+					flag = adminMapper.updateCompanyLogo(type_id, file_url);
+					break;
 			}
 		}
 		else{
@@ -447,11 +451,15 @@ public class AdminServiceImpl implements AdminService{
 	@Override
 	public Integer addWarehouseBill(Warehouse warehouseBills) {
 		Integer flag = 0,id= 0;
+		Warehouse warehouse = new Warehouse();
 		if(warehouseBills != null){
 			try{
 				flag = adminMapper.addWarehouseBills(warehouseBills);
 				if(flag > 0){
-					id = adminMapper.getLastAddedBillId(warehouseBills.getCompany_admin_id());
+					warehouse = adminMapper.getLastAddedBill(warehouseBills.getCompany_admin_id());
+					id = warehouse.getId();
+					warehouseBills.setId(id);
+					warehouseBills.setCreationTime(warehouse.getCreativeTime());
 				}
 				else{
 					LOG.info("Bill Not Updated");
@@ -481,5 +489,174 @@ public class AdminServiceImpl implements AdminService{
 		}
 		return dealerList;
 	}
+
+	@Override
+	public List<Company> getCompanyListByDealer(Integer dealerId) {
+		List<Company> companyList = new ArrayList<Company>();
+		if(dealerId != null){
+			try{
+				companyList = adminMapper.getCompanyListByDealer(dealerId);
+				if(companyList != null){
+					LOG.info("Company List Fetched Successfully");
+				}
+				else{
+					LOG.info("Company List not fetched");
+				}
+			}catch(Exception e){
+				LOG.info("Error while fetching company list " + e);
+			}
+		}else{
+			LOG.info("Dealer id is null");
+		}
+		return companyList;
+	}
+
+	@Override
+	public Integer getTSIByDealer(Integer company_id, Integer dealer_id) {
+		Integer tsi_id = 0;
+		if(company_id != null && dealer_id != null){
+			try{
+				tsi_id = adminMapper.getTSIByDealer(company_id,dealer_id);
+				if(tsi_id > 0){
+					LOG.info("TSI ID Fetched Successfully");
+				}
+				else{
+					LOG.info("TSI ID not fetched");
+				}
+			}catch(Exception e){
+				LOG.info("Error while fetching tsi " + e);
+			}
+		}
+		else{
+			LOG.info("Param Missing");
+		}
+		return tsi_id;
+	}
+
+	@Override
+	public String getCompanyNameByCompanyAdmin(Integer company_admin_id) {
+		String companyName = new String();
+		if(company_admin_id != null){
+			try{
+				companyName = adminMapper.getCompanyNameByCompanyAdmin(company_admin_id);
+				if(companyName != null){
+					LOG.info("Company Name Fetched Successfully");
+				}
+				else{
+					LOG.info("Company Name not fetched");
+				}
+			}catch(Exception e){
+				LOG.info("Error while retriving company name " + e);
+			}
+		}
+		else{
+			LOG.info("Company Admin id is null");
+		}
+		return companyName;
+	}
+
+	@Override
+	public String getRMArea(Integer company_admin_id, Integer dealer_id) {
+		String rmArea = new String();
+		if(company_admin_id != null && dealer_id != null){
+			try{
+				rmArea = adminMapper.getRMArea(company_admin_id, dealer_id);
+			}catch(Exception e){
+				LOG.info("Exception " + e);
+			}
+			
+		}
+		return rmArea;
+	}
+
+	@Override
+	public String getAMArea(Integer company_admin_id, Integer dealer_id) {
+		String amArea = new String();
+		if(company_admin_id != null && dealer_id != null){
+			try{
+				amArea = adminMapper.getAMArea(company_admin_id, dealer_id);
+			}catch(Exception e){
+				LOG.info("Exception " + e);
+			}
+		}
+		return amArea;
+	}
+
+	@Override
+	public String getTSIArea(Integer company_admin_id, Integer dealer_id) {
+		String tsiArea = new String();
+		if(company_admin_id != null && dealer_id != null){
+			try{
+				tsiArea = adminMapper.getTSIArea(company_admin_id, dealer_id);
+			}catch(Exception e){
+				LOG.info("Exception  " + e);
+			}
+		}
+		return tsiArea;
+	}
+
+	@Override
+	public String getDealerName(Integer dealer_id) {
+		String dealerName = new String();
+		if(dealer_id != null){
+			try{
+				dealerName = adminMapper.getDealerById(dealer_id).getName();
+			}catch(Exception e){
+				LOG.info("Exception " + e);
+			}
+		}
+		return dealerName;
+	}
+
+	@Override
+	public Warehouse getWarehouseBillsById(Integer bill_id) {
+		Warehouse warehouseBills = new Warehouse();
+		if(bill_id != null){
+			try{
+				warehouseBills = adminMapper.getWarehouseBillById(bill_id);
+			}catch(Exception e){
+				LOG.info("Exception : " + e);
+			}
+		}
+		else{
+			LOG.info("Param Missing");
+		}
+			
+		return warehouseBills;
+	}
+
+	@Override
+	public Integer updateWarehouseBills(String type, Integer bill_id,String file_url) {
+		Integer flag = 0;
+		if(type != null && bill_id != null && file_url != null){
+			try{
+				flag = adminMapper.updateWarehouseBills(type,bill_id,file_url);
+			}catch(Exception e){
+				LOG.info("Exception : " + e);
+			}
+		}
+		else{
+			LOG.info("Param Missing");
+		}
+		return flag;
+	}
+
+	@Override
+	public List<String> getWarehouseBills(String type, Integer companyId,
+			Integer dealerId) {
+		List<String> bills = new ArrayList<String>();
+		if(type != null && companyId != null && dealerId != null){
+			try{
+				bills = adminMapper.getWarehouseBill(type,companyId,dealerId);
+			}catch(Exception e){
+				LOG.info("Exception : " + e);
+			}
+		}
+		else{
+			LOG.info("Param Missinng");
+		}
+		return bills;
+	}
+	
 	
 }

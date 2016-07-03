@@ -7,13 +7,15 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
+import java.sql.Date;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
-import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -22,12 +24,15 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.myt.domains.AreaManager;
+import com.myt.domains.Bills;
+import com.myt.domains.Company;
 import com.myt.domains.CompanyAdmin;
 import com.myt.domains.Dealer;
 import com.myt.domains.Message;
@@ -64,13 +69,12 @@ public class AdminController {
 	 */
 	@RequestMapping(value="/rm",method = RequestMethod.POST)
 	@ResponseBody
-	public Message createRM(@RequestBody RegionalManager regionalManager, HttpServletRequest request) {
+	public Message createRM(@RequestBody RegionalManager regionalManager) {
 		Message message = new Message();
 		String result = null;
 		int id = 0;
-		if (regionalManager != null && request.getSession().getAttribute("company_admin_id") != null) {
+		if (regionalManager != null) {
 			try {
-				regionalManager.setBoss_id((Integer)request.getSession().getAttribute("company_admin_id"));
 				id = adminService.createRM(regionalManager);
 				
 				if (id > 0) {
@@ -92,12 +96,11 @@ public class AdminController {
 	
 	@RequestMapping(value="/rm" , method = RequestMethod.GET)
 	@ResponseBody
-	public List<AreaManager> getRegionalManagerByCompanyAdmin(HttpServletRequest request) {
+	public List<AreaManager> getRegionalManagerByCompanyAdmin(@RequestParam Integer companyAdminId) {
 		List<AreaManager> listRegionalManager = new ArrayList<AreaManager>();
-		Integer company_admin_id = (Integer)request.getSession().getAttribute("company_admin_id");
-		if(company_admin_id != null){
+		if(companyAdminId != null){
 			try{
-				listRegionalManager = adminService.getRegionalManagerByCompanyAdmin(company_admin_id);
+				listRegionalManager = adminService.getRegionalManagerByCompanyAdmin(companyAdminId);
 			}catch(Exception e){
 				LOG.info("Error in Admin Controller " + e);
 			}
@@ -108,13 +111,11 @@ public class AdminController {
 		return listRegionalManager;
 	}
 
-	@RequestMapping(value = "/rm/details" , method = RequestMethod.GET)
+	@RequestMapping(value = "/rm/{rm_id}" , method = RequestMethod.GET)
 	@ResponseBody
-	public RegionalManager getCurrentRM(HttpServletRequest request){
+	public RegionalManager getCurrentRM(@PathVariable Integer rm_id){
 		RegionalManager regionalManager = new RegionalManager();
-		Integer rm_id = 0;
-		rm_id = (Integer)request.getSession().getAttribute("rm_id");
-		if(rm_id > 0){
+		if(rm_id != null){
 			try{
 				regionalManager = adminService.getRMById(rm_id);
 				if(regionalManager != null){
@@ -129,47 +130,7 @@ public class AdminController {
 		}
 		return regionalManager;
 	}
-	@RequestMapping(value = "/session/{type}/{type_id}" , method = RequestMethod.GET)
-	@ResponseBody
-	public Message startRMSession(@PathVariable String type, @PathVariable Integer type_id,  HttpServletRequest request){
-		Message result = new Message();
-		Boolean flag = false;
-		if(type_id != null && type != null){
-			switch(type){
-				case "RM":
-					request.getSession().setAttribute("rm_id", type_id);
-					flag = request.getSession().getAttribute("rm_id").equals(type_id);
-					break;
-				case "AM":
-					request.getSession().setAttribute("am_id", type_id);
-					flag = request.getSession().getAttribute("am_id").equals(type_id);
-					break;
-				case "TSI":
-					request.getSession().setAttribute("tsi_id", type_id);
-					flag = request.getSession().getAttribute("tsi_id").equals(type_id);
-					break;
-				case "DEALER":
-					request.getSession().setAttribute("dealer_id", type_id);
-					flag = request.getSession().getAttribute("dealer_id").equals(type_id);
-					break;
-				
-			}
-			
-			if(flag){
-				result.setId(1);
-				LOG.info("Session is now Active");
-			}
-			else{
-				result.setId(0);
-				LOG.info("Session Can't Start");
-			}
-		}
-		else{
-			LOG.info("Id Is Missing");
-		}
-		return result;
-	}
-	
+
 	/**
 	 * This will create the vendor object in database
 	 * 
@@ -178,17 +139,12 @@ public class AdminController {
 	 */
 	@RequestMapping(value="/am",method = RequestMethod.POST)
 	@ResponseBody
-	public Message createAM(@RequestBody AreaManager areaManager, HttpServletRequest request) {
+	public Message createAM(@RequestBody AreaManager areaManager) {
 		Message message = new Message();
 		String result = null;
-		Integer rm_id = 0, company_admin_id = 0;
-		rm_id = (Integer)request.getSession().getAttribute("rm_id");
-		company_admin_id = (Integer)request.getSession().getAttribute("company_admin_id");
 		int id = 0;
-		if (areaManager != null && rm_id > 0 && company_admin_id > 0) {
+		if (areaManager != null) {
 			try {
-				areaManager.setBoss_id((Integer)request.getSession().getAttribute("rm_id"));
-				areaManager.setCompany_admin_id(company_admin_id);
 				id = adminService.createAM(areaManager);
 				if (id > 0) {
 					result = "AM has been added successfuly";
@@ -209,9 +165,8 @@ public class AdminController {
 	
 	@RequestMapping(value="/am" , method = RequestMethod.GET)
 	@ResponseBody
-	public List<AreaManager> getAreaManagerByRegionalManager(HttpServletRequest request) {
+	public List<AreaManager> getAreaManagerByRegionalManager(@RequestParam Integer rm_id) {
 		List<AreaManager> listAreaManager = new ArrayList<AreaManager>();
-		Integer rm_id = (Integer)request.getSession().getAttribute("rm_id"); 
 		if(rm_id != null){
 			try{
 				listAreaManager = adminService.getAreaManagerByRegionalManager(rm_id);
@@ -231,13 +186,11 @@ public class AdminController {
 		return listAreaManager;
 	}
 	
-	@RequestMapping(value = "/am/details" , method = RequestMethod.GET)
+	@RequestMapping(value = "/am/{am_id}" , method = RequestMethod.GET)
 	@ResponseBody
-	public AreaManager getCurrentAM(HttpServletRequest request){
+	public AreaManager getCurrentAM(@PathVariable Integer am_id){
 		AreaManager areaManager = new AreaManager();
-		Integer am_id = 0;
-		am_id = (Integer)request.getSession().getAttribute("am_id");
-		if(am_id > 0){
+		if(am_id != null){
 			try{
 				areaManager = adminService.getAMById(am_id);
 				if(areaManager != null){
@@ -261,18 +214,12 @@ public class AdminController {
 	 */
 	@RequestMapping(value="/tsi/add",method = RequestMethod.POST)
 	@ResponseBody
-	public Message createTSI(@RequestBody TSI tsi, HttpServletRequest request) {
+	public Message createTSI(@RequestBody TSI tsi) {
 		Message message = new Message();
 		String result = null;
-		Integer am_id = (Integer)request.getSession().getAttribute("am_id");
-		Integer rm_id = (Integer)request.getSession().getAttribute("rm_id");
-		Integer company_admin_id = (Integer)request.getSession().getAttribute("company_admin_id");
 		int id = 0;
-		if (tsi != null && am_id != null && rm_id != null && company_admin_id != null) {
+		if (tsi != null) {
 			try {
-				tsi.setBoss_id(am_id);
-				tsi.setRm_id(rm_id);
-				tsi.setCompany_admin_id(company_admin_id);
 				id = adminService.createTSI(tsi);
 				if (id > 0) {
 					result = "TSI has been added successfuly";
@@ -293,12 +240,10 @@ public class AdminController {
 	
 	@RequestMapping(value="/tsi" , method = RequestMethod.GET)
 	@ResponseBody
-	public List<TSI> getTSIByAM(HttpServletRequest request) {
+	public List<TSI> getTSIByAM(@RequestParam Integer am_id) {
 		List<TSI> listTSI = new ArrayList<TSI>();
-		Integer am_id = (Integer)request.getSession().getAttribute("am_id");
 		if(am_id != null){
 			try{
-				request.getSession().setAttribute("am_id", am_id);
 				listTSI = adminService.getTSIByAM(am_id);
 			}catch(Exception e){
 				LOG.info("Error in Admin Controller " + e);
@@ -310,11 +255,10 @@ public class AdminController {
 		return listTSI;
 	}
 	
-	@RequestMapping(value = "/tsi/details" , method = RequestMethod.GET)
+	@RequestMapping(value = "/tsi/{tsi_id}" , method = RequestMethod.GET)
 	@ResponseBody
-	public TSI getCurrentTSI(HttpServletRequest request){
+	public TSI getCurrentTSI(@PathVariable Integer tsi_id){
 		TSI tsi = new TSI();
-		Integer tsi_id = (Integer)request.getSession().getAttribute("tsi_id");
 		if(tsi_id != null){
 			try{
 				tsi = adminService.getTSIById(tsi_id);
@@ -341,20 +285,12 @@ public class AdminController {
 	 */
 	@RequestMapping(value="/dealer/add",method = RequestMethod.POST)
 	@ResponseBody
-	public Message createDealer(@RequestBody Dealer dealer, HttpServletRequest request) {
+	public Message createDealer(@RequestBody Dealer dealer) {
 		Message message = new Message();
 		String result = null;
-		Integer id = 0, tsi_id = 0, am_id = 0, rm_id = 0, company_admin_id = 0;
-		tsi_id = (Integer)request.getSession().getAttribute("tsi_id");
-		am_id = (Integer)request.getSession().getAttribute("am_id");
-		rm_id = (Integer)request.getSession().getAttribute("rm_id");
-		company_admin_id = (Integer)request.getSession().getAttribute("company_admin_id");
-		if (dealer != null && tsi_id > 0 && am_id > 0 && rm_id > 0 && company_admin_id > 0) {
+		Integer id = 0;
+		if (dealer != null) {
 			try {
-				dealer.setBoss_id((Integer)request.getSession().getAttribute("tsi_id"));
-				dealer.setAm_id(am_id);
-				dealer.setRm_id(rm_id);
-				dealer.setCompany_admin_id(company_admin_id);
 				id = adminService.createDealer(dealer);
 				if (id > 0) {
 					result = "Dealer has been added successfuly";
@@ -375,12 +311,10 @@ public class AdminController {
 	
 	@RequestMapping(value="/dealers" , method = RequestMethod.GET)
 	@ResponseBody
-	public List<Dealer> getDealersByTSI(HttpServletRequest request) {
+	public List<Dealer> getDealersByTSI(@RequestParam Integer tsi_id) {
 		List<Dealer> listDealers = new ArrayList<Dealer>();
-		Integer tsi_id = (Integer)request.getSession().getAttribute("tsi_id");
 		if(tsi_id != null){
 			try{
-				request.getSession().setAttribute("tsi_id", tsi_id);
 				listDealers = adminService.getDealersByTSI(tsi_id);
 				if(listDealers != null){
 					LOG.info("List Fetched Successfully");
@@ -400,7 +334,7 @@ public class AdminController {
 	
 	@RequestMapping(value = "/dealer/{dealer_id}" , method = RequestMethod.GET)
 	@ResponseBody
-	public Dealer getDealerById(@PathVariable Integer dealer_id, HttpServletRequest request){
+	public Dealer getDealerById(@PathVariable Integer dealer_id){
 		Dealer dealer = new Dealer();
 		if(dealer_id != null){
 			try{
@@ -420,25 +354,26 @@ public class AdminController {
 		}
 		return dealer;
 	}
-	
-	@RequestMapping(value = "/{type}/{type_id}/picture", method = RequestMethod.POST)
+
+	@RequestMapping(value = "/{type}/{type_id}/picture/company/{company_id}", method = RequestMethod.POST)
 	@ResponseBody
-	public Message upload(@PathVariable String type, 
-			@PathVariable Integer type_id,MultipartHttpServletRequest request, HttpServletRequest sessionRequest) {
+	public Message upload(@PathVariable String type, @PathVariable Integer company_id,
+			@PathVariable Integer type_id,MultipartHttpServletRequest request) {
 		Message result = new Message();
 		String message = new String();
 		Integer i = 0;
 		byte[] bytes;
 		String file_url = null;
-    	String SAVE_DIR = null;
-    	String savePath = null;
+		String SAVE_DIR = null;
+		String savePath = null;
 		BufferedImage image = null;
-		if(type != null && type_id != null && request != null){
+		if(type != null && type_id != null && request != null && company_id != null){
 			try {
 				Iterator<String> itr =  request.getFileNames();
 				String appPath = "/usr/share/tomcat7/webapps";
 				MultipartFile mpf = request.getFile(itr.next());
-				SAVE_DIR = adminService.getCompanyNameById((Integer)sessionRequest.getSession().getAttribute("company_id"));
+				SAVE_DIR = adminService.getCompanyNameById(company_id);
+				SAVE_DIR = SAVE_DIR.replace(" ", "_");
 				bytes= mpf.getBytes();
 				if(SAVE_DIR != null){
 					savePath = appPath + File.separator + SAVE_DIR;
@@ -449,7 +384,7 @@ public class AdminController {
 						fileSaveDir.mkdir();
 					}
 					ImageIO.write(image, "jpg", new File(fileSaveDir + File.separator + type + "_" + type_id + ".jpg"));
-					file_url = "http://172.16.173.111:8080/" + SAVE_DIR + File.separator + type + "_" + type_id + ".jpg";
+					file_url = "http://localhost:8080/" + SAVE_DIR + File.separator + type + "_" + type_id + ".jpg";
 					if(image != null){
 						i = adminService.updateUserProfilePic(type,type_id, file_url);
 						if(i > 0){
@@ -480,17 +415,15 @@ public class AdminController {
 
 	@RequestMapping(value = "/warehouse/bill" , method = RequestMethod.POST)
 	@ResponseBody
-	public Message addWarehouseBill(@RequestBody Warehouse warehouseBills , HttpServletRequest request){
+	public Message addWarehouseBill(@RequestBody Warehouse warehouseBills){
 		Message result = new Message();
-		Integer company_admin_id = 0, id = 0;
+		Integer id = 0;
 		String message = new String();
-		company_admin_id = (Integer)request.getSession().getAttribute("company_admin_id");
-		if(warehouseBills != null && company_admin_id != null){
+		if(warehouseBills != null){
 			try{
-				warehouseBills.setCompany_admin_id(company_admin_id);
 				id = adminService.addWarehouseBill(warehouseBills);
 				if(id > 0){
-					message = "Bills Added Successfully";
+					message = "Bill Updated Successfully";
 				}
 				else{
 					message = "Bill Not Added";
@@ -507,10 +440,10 @@ public class AdminController {
 		return result;
 	}
 	
-	@RequestMapping(value="/warehouse/bill/{bill_id}/{type}" , method=RequestMethod.PUT)
+	@RequestMapping(value="/warehouse/bill/{bill_id}/{type}" , method=RequestMethod.POST)
 	@ResponseBody
-    public Message addWarehouseBillsImages(@PathVariable Integer bill_id , @PathVariable String type , 
-    		MultipartHttpServletRequest request, HttpServletRequest sessionRequest) {
+    public Message addWarehouseBillsImages(@PathVariable Integer bill_id , @PathVariable String type 
+    		,MultipartHttpServletRequest request) {
     	String file_url = new String();
     	Message result = new Message();
     	String message = new String();
@@ -519,38 +452,49 @@ public class AdminController {
     	String SAVE_DIR = null;
     	String savePath = null;
 		BufferedImage image = null;
+		String dirPath = new String();
+		DateFormat dateFormator = new SimpleDateFormat("dd-MM-yyyy");
 		if(type != null && bill_id != null && request != null){
 			try {
+				Warehouse warehouseBills = new Warehouse();
+				warehouseBills = adminService.getWarehouseBillsById(bill_id);
+				dirPath = adminService.getCompanyNameByCompanyAdmin(warehouseBills.getCompany_admin_id()).replace(" ", "_") + "/"; 
+				dirPath += adminService.getRMArea(warehouseBills.getCompany_admin_id(),warehouseBills.getDealer_id()).replace(" ", "_") + "/";
+				dirPath += adminService.getAMArea(warehouseBills.getCompany_admin_id(),warehouseBills.getDealer_id()).replace(" ", "_") + "/";
+				dirPath += adminService.getTSIArea(warehouseBills.getCompany_admin_id(),warehouseBills.getDealer_id()).replace(" ", "_") + "/";
+				dirPath += adminService.getDealerName(warehouseBills.getDealer_id()).replace(" ", "_") + "/";
+				Date orderDate = new Date(warehouseBills.getCreativeTime().getTime());
+				dirPath += dateFormator.format(orderDate);
+				LOG.info(dirPath);
 				Iterator<String> itr =  request.getFileNames();
 				String appPath = "/usr/share/tomcat7/webapps";
 				MultipartFile mpf = request.getFile(itr.next());
-				SAVE_DIR = adminService.getCompanyNameById((Integer)sessionRequest.getSession().getAttribute("company_id"));
+				SAVE_DIR = dirPath;
 				bytes= mpf.getBytes();
-				if(SAVE_DIR != null){
-					savePath = appPath + File.separator + SAVE_DIR;
-					File fileSaveDir = new File(savePath);
-					InputStream inputStream = new ByteArrayInputStream(bytes);
-					image = ImageIO.read(inputStream);
-					if (!fileSaveDir.exists()) {
-						fileSaveDir.mkdir();
+				savePath = appPath + File.separator + SAVE_DIR;
+				File fileSaveDir = new File(savePath);
+				InputStream inputStream = new ByteArrayInputStream(bytes);
+				image = ImageIO.read(inputStream);
+				if (!fileSaveDir.exists()) {
+					if(fileSaveDir.mkdirs()){
+						LOG.info("Directory Created");
+					}else{
+						LOG.info("Directory not created");
 					}
-					ImageIO.write(image, "jpg", new File(fileSaveDir + File.separator + type + "_" + bill_id + ".jpg"));
-					file_url = "http://172.16.173.111:8080/" + SAVE_DIR + File.separator + type + "_" + bill_id + ".jpg";
-					if(image != null){
-						flag = adminService.updateUserProfilePic(type,bill_id, file_url);
-						if(flag > 0){
-							message = "Image Uploaded And Updated Successfully";
-						}
-						else{
-							message = "Image not Updated";
-						}
+				}
+				ImageIO.write(image, "jpg", new File(fileSaveDir + File.separator + type + "_" + bill_id + ".jpg"));
+				file_url = "http://192.168.1.7:8080/" + SAVE_DIR + File.separator + type + "_" + bill_id + ".jpg";
+				if(image != null){
+					flag = adminService.updateWarehouseBills(type,bill_id, file_url);
+					if(flag > 0){
+						message = "Image Uploaded And Updated Successfully";
 					}
 					else{
-						message = "Image Not Uploaded";
+						message = "Image not Updated";
 					}
 				}
 				else{
-					message = "Company Name Not found";
+					message = "Image Not Uploaded";
 				}
 			} catch (Exception e) {
 				message = "Error While Uploading Picture " + e;
@@ -564,11 +508,35 @@ public class AdminController {
     	return result;
     }
 	
-	@RequestMapping(value = "/companyAdmin/dealer" , method = RequestMethod.GET)
+	@RequestMapping(value= "/warehouse/bill/{type}", method = RequestMethod.GET)
 	@ResponseBody
-	public List<Dealer> getDealerListByCA(HttpServletRequest request){
+	public Bills getWarehouseBills(@PathVariable String type , @RequestParam Integer companyId , 
+			@RequestParam Integer dealerId){
+		Bills warehouseBills = new Bills();
+		List<String> billsArray = new ArrayList<String>();
+		if(type != null && companyId != null && dealerId != null){
+			try{
+				billsArray = adminService.getWarehouseBills(type,companyId,dealerId);
+				if(billsArray != null){
+					warehouseBills.setBills(billsArray);
+					LOG.info("Bills fetched Successfully");
+				}
+				else{
+					LOG.info("Bills not fetched");
+				}
+			}catch(Exception e){
+				LOG.info("Exception : " + e);
+			}
+		}
+		else{
+			LOG.info("Param Missing");
+		}
+		return warehouseBills;
+	}
+	@RequestMapping(value = "/companyAdmin/{company_admin_id}/dealer" , method = RequestMethod.GET)
+	@ResponseBody
+	public List<Dealer> getDealerListByCA(@PathVariable Integer company_admin_id){
 		List<Dealer> dealerList = new ArrayList<Dealer>();
-		Integer company_admin_id = (Integer)request.getSession().getAttribute("company_admin_id");
 		if(company_admin_id != null){
 			try{
 				dealerList = adminService.getDealerListByCA(company_admin_id);
@@ -587,6 +555,7 @@ public class AdminController {
 		}
 		return dealerList;
 	}
+	
 	/**
 	 * This will create the user 
 	 * @param user
@@ -614,7 +583,7 @@ public class AdminController {
 					fileSaveDir.mkdir();
 				}
 				if(ImageIO.write(image, "jpg", new File(fileSaveDir + File.separator + "noti_" + currentTimestamp + ".jpg"))){
-					file_url = "http://192.168.43.181:8080/" + SAVE_DIR + File.separator
+					file_url = "http://192.168.1.7:8080/" + SAVE_DIR + File.separator
 							+ "noti_" + currentTimestamp + ".jpg";
 					id = 1;
 					message = file_url;
@@ -650,9 +619,8 @@ public class AdminController {
 	 */
 	@RequestMapping(value="/login",method = RequestMethod.POST)
 	@ResponseBody
-	public User checkLogin(@RequestBody User user, HttpServletRequest request){
+	public User checkLogin(@RequestBody User user){
 		User user1 = null;
-		Integer company_id = 0;
 		if (user != null) {
 			try {
 				user1 = new User();
@@ -660,21 +628,6 @@ public class AdminController {
 				if(user1 != null && user1.getPassword() != null){
 					if(user1.getPassword().equals(user.getPassword())){
 						LOG.info("Password matched");
-						// Only For Web
-						if(user1.getType().equals("CA")){
-							company_id = adminService.getCompanyIdByAdmin(user1.getReference_id());
-							if(company_id != null){
-								request.getSession().setAttribute("company_id", company_id);
-								LOG.info("Company Id : " + (Integer)request.getSession().getAttribute("company_id"));
-							}
-							request.getSession().setAttribute("company_admin_id", user1.getReference_id());
-							if(request.getSession().getAttribute("company_admin_id").equals(user1.getReference_id())){
-								LOG.info("Session Started " + request.getSession().getAttribute("company_admin_id"));
-							}
-							else{
-								LOG.info("Error While Adding Session");
-							}
-						}
 						return user1;
 					}
 					else
@@ -689,12 +642,10 @@ public class AdminController {
 		return user1;
 	}
 	
-	@RequestMapping(value = "/companyAdmin" , method = RequestMethod.GET)
+	@RequestMapping(value = "/companyAdmin/{companyAdminId}" , method = RequestMethod.GET)
 	@ResponseBody
-	public CompanyAdmin getCompanyAdmin(HttpServletRequest request){
+	public CompanyAdmin getCompanyAdmin(@PathVariable Integer companyAdminId){
 		CompanyAdmin companyAdmin = new CompanyAdmin();
-		Integer companyAdminId = (Integer)request.getSession().getAttribute("company_admin_id");
-		LOG.info("Company Admin id " + companyAdminId);
 		if(companyAdminId != null){
 			try{
 				companyAdmin = adminService.getCompanyAdminById(companyAdminId);
@@ -713,59 +664,7 @@ public class AdminController {
 		}
 		return companyAdmin;
 	}
-	@RequestMapping(value = "/session", method = RequestMethod.GET)
-	@ResponseBody
-	public Message IsSessionSet(HttpServletRequest request){
-		Message result = new Message();
-		String message = new String();
-		Integer id = 0;
-		try{
-			LOG.info("Company Admin Id : " + (Integer)request.getSession().getAttribute("company_admin_id"));
-			if(request.getSession().getAttribute("company_admin_id").equals(0)){
-				message = "Session is Not Active";
-				id = 0;
-			}
-			else{
-				message = "Session is Active";
-				id = 1;
-			}
-		}catch(Exception e){
-			LOG.info("Error in Sessions " + e);
-		}
-		LOG.info(message);
-		result.setId(id);
-		result.setMessage(message);
-		return result;
-	}
 	
-	@RequestMapping(value = "/logout", method = RequestMethod.GET)
-	@ResponseBody
-	public Message logout(HttpServletRequest request){
-		Message result = new Message();
-		String message = new String();
-		Integer id = 0;
-		try{
-			request.getSession().setAttribute("company_admin_id", 0);
-//			request.getSession().removeAttribute("rm_id");
-//			request.getSession().removeAttribute("am_id");
-//			request.getSession().removeAttribute("tsi_id");
-//			request.getSession().removeAttribute("dealer_id");
-			if(request.getSession().getAttribute("company_admin_id").equals(0)){
-				id = 1;
-				message = "Logout Successfully";
-			}
-			else{
-				id = 0;
-				message = "Logout Failed";	
-			}
-		}catch(Exception e){
-			LOG.info("Error While Removing Sessions " + e);
-		}
-		LOG.info(message);
-		result.setId(id);
-		result.setMessage(message);
-		return result;
-	}
 	
 	@RequestMapping(value= "/type/{type}/password", method = RequestMethod.PUT)
 	@ResponseBody
@@ -794,4 +693,20 @@ public class AdminController {
 		return result;
 	}
 	
+	@RequestMapping(value = "/company/dealer/{dealerId}", method = RequestMethod.GET)
+	@ResponseBody
+	public List<Company> getCompanyListByDealer(@PathVariable Integer dealerId){
+		List<Company> companyList = new ArrayList<Company>();
+		if(dealerId != null){
+			try{
+				companyList = adminService.getCompanyListByDealer(dealerId);
+			}catch(Exception e){
+				LOG.info("Error while fetching company list " + e);
+			}
+		}
+		else{
+			LOG.info("Dealer id is NULL");
+		}
+		return companyList;
+	}
 }

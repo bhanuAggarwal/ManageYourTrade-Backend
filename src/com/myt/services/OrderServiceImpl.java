@@ -28,9 +28,16 @@ public class OrderServiceImpl implements OrderService {
 	@Override
 	public Integer placeOrderByDealer(DealerOrder dealerOrder) {
 		Integer flag = 0;
+		Integer orderId = 0;
 		if(dealerOrder != null){
 			try{
 				flag = orderMapper.placeOrderByDealer(dealerOrder);
+				if(flag > 0){
+					orderId = orderMapper.getLastPlacedOrder(dealerOrder.getDealer_id());
+				}
+				else{
+					LOG.info("Order Not Placed");
+				}
 			}catch(Exception e){
 				LOG.info("Error while Placing order in Services " + e);
 			}
@@ -38,17 +45,17 @@ public class OrderServiceImpl implements OrderService {
 		else{
 			LOG.info("Some Param Missing");
 		}
-		return flag;
+		return orderId;
 	}
 
 	
 	@Override
-	public List<DealerOrder> getOrderListByType(Integer user_id, String type) {
+	public List<DealerOrder> getOrderListByType(Integer user_id, String type, Integer company_id) {
 		List<DealerOrder> orderList = new ArrayList<DealerOrder>();
 		if(user_id != null && type != null){
 			try{
 				if(type.equals("dealer")){
-					orderList = orderMapper.getOrderListByDealer(user_id);
+					orderList = orderMapper.getOrderListByDealer(user_id,company_id);
 				}
 				else{
 					orderList = orderMapper.getOrderListByTSI(user_id);
@@ -84,6 +91,22 @@ public class OrderServiceImpl implements OrderService {
 		}
 		return flag;
 	}
-	
+
+
+	@Override
+	public List<DealerOrder> getOrderListByWarehouse(Integer company_id) {
+		List<DealerOrder> orderList = new  ArrayList<DealerOrder>();
+		if(company_id != null){
+			try{
+				orderList = orderMapper.getOrderListByWarehouse(company_id);
+			}catch(Exception e){
+				LOG.info("Exception : " + e);
+			}
+		}
+		else{
+			LOG.info("Param Missing");
+		}
+		return orderList;
+	}
 	
 }

@@ -4,10 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -44,7 +43,7 @@ public class SuperAdminController {
 	 */
 	@RequestMapping(value="/company",method = RequestMethod.POST)
 	@ResponseBody
-	public Message createCompany(@RequestBody Company company, HttpServletRequest request) {
+	public Message createCompany(@RequestBody Company company) {
 		Message message = new Message();
 		String result = null;
 		int id = 0;
@@ -54,7 +53,6 @@ public class SuperAdminController {
 				if (id > 0) {
 					result = "Company has been added successfuly";
 					LOG.info("The id created is" + id);
-					request.getSession().setAttribute("company_id", id);
 				} else
 					result = "Company was not added";
 			} catch (Exception e) {
@@ -75,16 +73,16 @@ public class SuperAdminController {
 	 * @param vendor
 	 * @return message
 	 */
-	@RequestMapping(value="/company-admin",method = RequestMethod.POST)
+	@RequestMapping(value="/company-admin/company/{company_id}",method = RequestMethod.POST)
 	@ResponseBody
-	public Message createCompanyAdmin(@RequestBody CompanyAdmin companyAdmin , HttpServletRequest request) {
+	public Message createCompanyAdmin(@RequestBody CompanyAdmin companyAdmin, @PathVariable Integer company_id) {
 		Message message = new Message();
 		String result = null;
 		int id = 0;
-		if (companyAdmin != null && request.getSession().getAttribute("company_id") != null) {
+		if (companyAdmin != null) {
 			try {
 				Company company = new Company();
-				company.setId((Integer)request.getSession().getAttribute("company_id"));
+				company.setId(company_id);
 				companyAdmin.setCompany(company);
 				id = superAdminService.createCompanyAdmin(companyAdmin);
 				if (id > 0) {
