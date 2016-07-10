@@ -384,7 +384,7 @@ public class AdminController {
 						fileSaveDir.mkdir();
 					}
 					ImageIO.write(image, "jpg", new File(fileSaveDir + File.separator + type + "_" + type_id + ".jpg"));
-					file_url = "http://localhost:8080/" + SAVE_DIR + File.separator + type + "_" + type_id + ".jpg";
+					file_url = "http://52.26.80.158:2110/" + SAVE_DIR + File.separator + type + "_" + type_id + ".jpg";
 					if(image != null){
 						i = adminService.updateUserProfilePic(type,type_id, file_url);
 						if(i > 0){
@@ -483,7 +483,7 @@ public class AdminController {
 					}
 				}
 				ImageIO.write(image, "jpg", new File(fileSaveDir + File.separator + type + "_" + bill_id + ".jpg"));
-				file_url = "http://192.168.1.7:8080/" + SAVE_DIR + File.separator + type + "_" + bill_id + ".jpg";
+				file_url = "http://52.26.80.158:2110/" + SAVE_DIR + File.separator + type + "_" + bill_id + ".jpg";
 				if(image != null){
 					flag = adminService.updateWarehouseBills(type,bill_id, file_url);
 					if(flag > 0){
@@ -583,7 +583,7 @@ public class AdminController {
 					fileSaveDir.mkdir();
 				}
 				if(ImageIO.write(image, "jpg", new File(fileSaveDir + File.separator + "noti_" + currentTimestamp + ".jpg"))){
-					file_url = "http://192.168.1.7:8080/" + SAVE_DIR + File.separator
+					file_url = "http://52.26.80.158:2110/" + SAVE_DIR + File.separator
 							+ "noti_" + currentTimestamp + ".jpg";
 					id = 1;
 					message = file_url;
