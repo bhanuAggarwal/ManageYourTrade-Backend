@@ -52,25 +52,21 @@ public interface AdminMapper {
             + " #{longitude} , #{profile_pic}, #{am_id} , #{rm_id} , #{company_admin_id})")
     public Integer createDealer(Dealer dealer);
 	
-	@Select("SELECT am.*,SUM(wb.amount) AS \"dealerAmount\" FROM area_manager am JOIN dealer d ON d.am_id = am.id "
-			+ " JOIN warehouse_bill wb ON d.id = wb.dealer_id AND am.company_admin_id = wb.company_admin_id "
+	@Select("SELECT am.* FROM area_manager am "
 			+ "WHERE am.boss_id =  #{rm_id} ORDER BY am.id DESC")
 	public List<AreaManager> getAreaManagerByRegionalManager(Integer rm_id);
 
-	@Select("SELECT rm.*,SUM(wb.amount) AS \"dealerAmount\" FROM regional_manager rm JOIN dealer d ON d.rm_id = rm.id "
-			+ "JOIN warehouse_bill wb ON wb.dealer_id = d.id AND d.company_admin_id = wb.company_admin_id "
+	@Select("SELECT rm.* FROM regional_manager rm "
 			+ "WHERE rm.boss_id = #{company_admin_id} ORDER BY rm.id DESC")
 	public List<AreaManager> getRegionalManagerByCompanyAdmin(
 			Integer company_admin_id);
 
-	@Select("SELECT tsi.*,SUM(wb.amount) AS \"dealerAmount\" FROM tsi JOIN dealer d ON d.boss_id = tsi.id "
-			+ " JOIN warehouse_bill wb ON d.company_admin_id = wb.company_admin_id AND d.id = wb.dealer_id"
+	@Select("SELECT tsi.* FROM tsi "
 			+ " WHERE tsi.boss_id = #{am_id} ORDER BY tsi.id DESC")
 	public List<TSI> getTSIByAM(Integer am_id);
 	
 
-	@Select("SELECT d.*,SUM(wb.amount) AS \"dealerAmount\" FROM dealer d JOIN tsi ON d.boss_id = tsi.id JOIN "
-			+ "warehouse_bill wb ON d.id = wb.dealer_id AND wb.company_admin_id = tsi.company_admin_id "
+	@Select("SELECT d.* FROM dealer d "
 			+ "WHERE d.boss_id = #{tsi_id} ORDER BY d.id DESC")
 	public List<Dealer> getDealersByTSI(Integer tsi_id);
 
